@@ -24,4 +24,8 @@ public enum BoxType {
 
         throw new InvalidBoxTypeException(rawType);
     }
+
+    public boolean isContainer() {
+        return this.equals(MOOF);
+    }
 }

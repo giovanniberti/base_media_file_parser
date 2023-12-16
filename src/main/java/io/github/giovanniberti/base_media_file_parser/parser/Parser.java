@@ -60,7 +60,7 @@ public class Parser implements Closeable, AutoCloseable {
             BoxType type = BoxType.fromBytes(boxMagic);
 
             int skipSize = size;
-            if (type.equals(BoxType.MOOF)) {
+            if (type.isContainer()) {
                 skipSize = 0;
             }
 
