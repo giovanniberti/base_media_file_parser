@@ -28,17 +28,12 @@ public class Parser implements Closeable, AutoCloseable {
     public BoxNode parse() throws IOException {
         this.root = parseNextBox();
 
-        if (this.root.type().equals(BoxType.MOOF)) {
-            List<BoxNode> children = parseContainerBoxChildren(this.root.size());
-            this.root.children().addAll(children);
-        }
-
         return this.root;
     }
 
-    private List<BoxNode> parseContainerBoxChildren(int contentSize) throws IOException {
+    private List<BoxNode> parseContainerBoxChildren(int boxSize) throws IOException {
         int startingOffset = stream.available();
-        int endOffset = startingOffset - contentSize;
+        int endOffset = startingOffset - boxSize;
 
         List<BoxNode> children = new ArrayList<>();
 
@@ -66,7 +61,12 @@ public class Parser implements Closeable, AutoCloseable {
 
             stream.skipNBytes(skipSize);
 
-            return new BoxNode(type, size);
+            List<BoxNode> children = List.of();
+            if (type.isContainer()) {
+                children = parseContainerBoxChildren(size);
+            }
+
+            return new BoxNode(type, size, children);
         } catch (InvalidBoxTypeException e) {
             throw new ParsingFailedException(this.root, e);
         }
