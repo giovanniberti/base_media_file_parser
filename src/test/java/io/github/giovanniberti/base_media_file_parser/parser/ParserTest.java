@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class ParserTest {
     @Test
@@ -12,7 +13,7 @@ public class ParserTest {
         InputStream is = classloader.getResourceAsStream("text0.mp4");
 
         try (Parser parser = new Parser(is)) {
-            BoxNode boxNode = parser.parse();
+            List<BoxNode> boxNode = parser.parse();
             System.out.println(boxNode);
         } catch (ParsingFailedException e) {
             System.out.println(e.parsedTree);

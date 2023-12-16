@@ -14,7 +14,7 @@ import java.util.List;
 public class Parser implements Closeable, AutoCloseable {
     private final BufferedInputStream stream;
 
-    private BoxNode root;
+    private List<BoxNode> rootNodes;
 
     public Parser(InputStream stream) {
         this.stream = new BufferedInputStream(stream);
@@ -25,19 +25,24 @@ public class Parser implements Closeable, AutoCloseable {
         this.stream.close();
     }
 
-    public BoxNode parse() throws IOException {
-        this.root = parseNextBox();
+    public List<BoxNode> parse() throws IOException {
+        this.rootNodes = new ArrayList<>();
 
-        return this.root;
+        while (stream.available() > 0) {
+            BoxNode node = parseNextBox();
+            this.rootNodes.add(node);
+        }
+
+        return this.rootNodes;
     }
 
-    private List<BoxNode> parseContainerBoxChildren(int boxSize) throws IOException {
+    private List<BoxNode> parseContainerBoxChildren(int contentSize) throws IOException {
         int startingOffset = stream.available();
-        int endOffset = startingOffset - boxSize;
+        int endOffset = startingOffset - contentSize;
 
         List<BoxNode> children = new ArrayList<>();
 
-        while (stream.available() >= endOffset) {
+        while (stream.available() > endOffset) {
             BoxNode child = parseNextBox();
             children.add(child);
         }
@@ -63,12 +68,12 @@ public class Parser implements Closeable, AutoCloseable {
 
             List<BoxNode> children = List.of();
             if (type.isContainer()) {
-                children = parseContainerBoxChildren(size);
+                children = parseContainerBoxChildren(size - 8);
             }
 
             return new BoxNode(type, size, children);
         } catch (InvalidBoxTypeException e) {
-            throw new ParsingFailedException(this.root, e);
+            throw new ParsingFailedException(this.rootNodes, e);
         }
     }
 
