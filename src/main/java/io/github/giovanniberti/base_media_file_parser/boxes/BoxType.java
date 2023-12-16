@@ -4,7 +4,8 @@ import java.util.Arrays;
 
 public enum BoxType {
     MOOF(new byte[]{0x6d, 0x6f, 0x6f, 0x66}),
-    MFHD(new byte[]{0x6d, 0x66, 0x68, 0x64});
+    MFHD(new byte[]{0x6d, 0x66, 0x68, 0x64}),
+    TRAF(new byte[]{0x74, 0x72, 0x61, 0x66});
 
     private final byte[] magic;
 
@@ -27,6 +28,6 @@ public enum BoxType {
     }
 
     public boolean isContainer() {
-        return this.equals(MOOF);
+        return this.equals(MOOF) || this.equals(TRAF);
     }
 }
