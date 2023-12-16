@@ -7,9 +7,10 @@ import java.util.List;
 
 public record BoxNode(
         BoxType type,
+        int size,
         List<BoxNode> children
 ) {
-    BoxNode(BoxType type) {
-        this(type, new ArrayList<>());
+    BoxNode(BoxType type, int size) {
+        this(type, size, new ArrayList<>());
     }
 }

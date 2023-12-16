@@ -1,15 +1,20 @@
 package io.github.giovanniberti.base_media_file_parser.parser;
 
 import io.github.giovanniberti.base_media_file_parser.boxes.BoxType;
+import io.github.giovanniberti.base_media_file_parser.boxes.InvalidBoxTypeException;
 
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Parser implements Closeable, AutoCloseable {
     private final BufferedInputStream stream;
+
+    private BoxNode root;
 
     public Parser(InputStream stream) {
         this.stream = new BufferedInputStream(stream);
@@ -21,7 +26,28 @@ public class Parser implements Closeable, AutoCloseable {
     }
 
     public BoxNode parse() throws IOException {
-        return parseNextBox();
+        this.root = parseNextBox();
+
+        if (this.root.type().equals(BoxType.MOOF)) {
+            List<BoxNode> children = parseContainerBoxChildren(this.root.size());
+            this.root.children().addAll(children);
+        }
+
+        return this.root;
+    }
+
+    private List<BoxNode> parseContainerBoxChildren(int contentSize) throws IOException {
+        int startingOffset = stream.available();
+        int endOffset = startingOffset - contentSize;
+
+        List<BoxNode> children = new ArrayList<>();
+
+        while (stream.available() >= endOffset) {
+            BoxNode child = parseNextBox();
+            children.add(child);
+        }
+
+        return children;
     }
 
     private BoxNode parseNextBox() throws IOException {
@@ -29,11 +55,21 @@ public class Parser implements Closeable, AutoCloseable {
         int size = ByteBuffer.wrap(sizeValue).getInt();
 
         byte[] boxMagic = readNBytes(4);
-        BoxType type = BoxType.fromBytes(boxMagic);
 
-        stream.skipNBytes(size);
+        try {
+            BoxType type = BoxType.fromBytes(boxMagic);
 
-        return new BoxNode(type);
+            int skipSize = size;
+            if (type.equals(BoxType.MOOF)) {
+                skipSize = 0;
+            }
+
+            stream.skipNBytes(skipSize);
+
+            return new BoxNode(type, size);
+        } catch (InvalidBoxTypeException e) {
+            throw new ParsingFailedException(this.root, e);
+        }
     }
 
     private byte[] readNBytes(int length) throws IOException {

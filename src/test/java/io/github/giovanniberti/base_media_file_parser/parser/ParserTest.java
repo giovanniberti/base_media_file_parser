@@ -14,6 +14,9 @@ public class ParserTest {
         try (Parser parser = new Parser(is)) {
             BoxNode boxNode = parser.parse();
             System.out.println(boxNode);
+        } catch (ParsingFailedException e) {
+            System.out.println(e.parsedTree);
+            throw e;
         }
     }
 }
