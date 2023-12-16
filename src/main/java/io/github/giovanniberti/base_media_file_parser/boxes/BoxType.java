@@ -3,7 +3,8 @@ package io.github.giovanniberti.base_media_file_parser.boxes;
 import java.util.Arrays;
 
 public enum BoxType {
-    MOOF(new byte[]{0x6d, 0x6f, 0x6f, 0x66});
+    MOOF(new byte[]{0x6d, 0x6f, 0x6f, 0x66}),
+    MFHD(new byte[]{0x6d, 0x66, 0x68, 0x64});
 
     private final byte[] magic;
 
