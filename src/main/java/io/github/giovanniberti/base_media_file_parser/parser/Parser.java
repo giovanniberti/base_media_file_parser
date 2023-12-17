@@ -51,27 +51,34 @@ public class Parser implements Closeable, AutoCloseable {
     }
 
     private BoxNode parseNextBox() throws IOException {
-        byte[] sizeValue = readNBytes(4);
-        int size = ByteBuffer.wrap(sizeValue).getInt();
+        final byte[] sizeValue = readNBytes(4);
+        final int size = ByteBuffer.wrap(sizeValue).getInt();
 
-        byte[] boxMagic = readNBytes(4);
+        final byte[] boxMagic = readNBytes(4);
 
         try {
-            BoxType type = BoxType.fromBytes(boxMagic);
+            final BoxType type = BoxType.fromBytes(boxMagic);
 
-            int skipSize = size - 8;
+            final int contentSize = size - 8;
+            int skipSize = contentSize;
             if (type.isContainer()) {
                 skipSize = 0;
             }
 
-            stream.skipNBytes(skipSize);
+            String content = null;
+
+            if (type.equals(BoxType.MDAT)) {
+                content = new String(readNBytes(contentSize));
+            } else {
+                stream.skipNBytes(skipSize);
+            }
 
             List<BoxNode> children = List.of();
             if (type.isContainer()) {
-                children = parseContainerBoxChildren(size - 8);
+                children = parseContainerBoxChildren(contentSize);
             }
 
-            return new BoxNode(type, size, children);
+            return new BoxNode(type, size, children, content);
         } catch (InvalidBoxTypeException e) {
             throw new ParsingFailedException(this.rootNodes, e);
         }

@@ -9,7 +9,8 @@ import java.util.List;
 public record BoxNode(
         BoxType type,
         int size,
-        List<BoxNode> children
+        List<BoxNode> children,
+        String content
 ) {
     public BoxNode {
         if (!type.isContainer() && !children.isEmpty()) {
@@ -17,7 +18,11 @@ public record BoxNode(
         }
     }
 
+    BoxNode(BoxType type, int size, List<BoxNode> children) {
+        this(type, size, children, null);
+    }
+
     BoxNode(BoxType type, int size) {
-        this(type, size, new ArrayList<>());
+        this(type, size, new ArrayList<>(), null);
     }
 }

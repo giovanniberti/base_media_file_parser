@@ -19,8 +19,11 @@ public class PrettyPrinter {
     }
 
     private void printBox(BoxNode boxNode, int indentationLevel) {
-        String indentation = " ".repeat(indentationLevel * 4);
-        stringBuilder.append("%sBox ID: %s of size %d\n".formatted(indentation, boxNode.type().name().toLowerCase(), boxNode.size()));
+        stringBuilder.append("Box ID: %s of size %d\n".formatted(boxNode.type().name().toLowerCase(), boxNode.size()).indent(indentationLevel * 4));
+
+        if (boxNode.type().equals(BoxType.MDAT)) {
+            stringBuilder.append("Mdat content:\n%s".formatted(boxNode.content()).indent(indentationLevel * 4));
+        }
 
         for (BoxNode child : boxNode.children()) {
             printBox(child, indentationLevel + 1);
