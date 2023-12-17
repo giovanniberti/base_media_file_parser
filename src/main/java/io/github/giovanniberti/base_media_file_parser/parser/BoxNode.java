@@ -11,7 +11,7 @@ public record BoxNode(
         int size,
         List<BoxNode> children
 ) {
-    public  BoxNode {
+    public BoxNode {
         if (!type.isContainer() && !children.isEmpty()) {
             throw new InvalidBoxException(type);
         }
