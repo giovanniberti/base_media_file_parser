@@ -55,10 +55,10 @@ public class ParserTest {
         );
 
         try (Parser parser = new Parser(is)) {
-            List<BoxNode> parsedTree = parser.parse();
-            System.out.println(parsedTree);
+            List<BoxNode> boxNode = parser.parse();
+            System.out.println(boxNode);
 
-            assertEquals(parsedTree, expectedStructure);
+            assertEquals(boxNode, expectedStructure);
         } catch (ParsingFailedException e) {
             System.out.println(e.parsedTree);
             throw e;
