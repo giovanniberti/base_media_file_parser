@@ -8,7 +8,7 @@ import java.util.List;
 public class PrettyPrinter {
     private StringBuilder stringBuilder;
 
-    String prettyPrint(List<BoxNode> parsed) {
+    public String prettyPrint(List<BoxNode> parsed) {
         stringBuilder = new StringBuilder();
 
         for (BoxNode node : parsed) {
